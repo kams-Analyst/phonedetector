@@ -1,8 +1,9 @@
 import cv2
 from ultralytics import YOLO
-import pygame
 import time
 import os
+from playsound import playsound
+import threading
 
 # --- CONFIGURATION ---
 AUDIO_FILE = "audio.mp3"  
@@ -16,11 +17,7 @@ if not os.path.exists(AUDIO_FILE):
     exit()
 
 # Audio pehle hi load kar lo (Loop ke bahar) - Ye fast karega
-pygame.mixer.init()
-try:
-    pygame.mixer.music.load(AUDIO_FILE)
-except Exception as e:
-    print(f"Audio Error: {e}")
+
 
 print("Loading Fast AI Model...")
 model = YOLO('yolov8n.pt')
@@ -78,8 +75,8 @@ while True:
         current_time = time.time()
         if current_time - last_alert_time > COOLDOWN_SECONDS:
             print(">>> ALERT: Fast Detection!")
-            if not pygame.mixer.music.get_busy():
-                pygame.mixer.music.play()
+            threading.Thread(target='playsound',args=(AUDIO_FILE,),daemon=True).start()
+            
             last_alert_time = current_time
 
     cv2.imshow('No Phone Zone', frame)
